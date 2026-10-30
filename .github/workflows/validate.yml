@@ -14,9 +14,10 @@ jobs:
           test -s index.html
           grep -q '<html lang="he" dir="rtl">' index.html
           grep -q 'id="grid"' index.html
-          grep -q 'id="video"' index.html
+          grep -q 'id="frame"' index.html
           grep -q 'id="search"' index.html
-          grep -q 'data-view="מועדפים"' index.html
+          grep -q 'id="openOfficial"' index.html
+          grep -q 'data-view="שמורים"' index.html
           grep -q '13tv.co.il/embed/item/' index.html
       - name: Syntax-check embedded JavaScript
         run: |
