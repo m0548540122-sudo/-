@@ -1,4 +1,4 @@
-name: Validate static site
+name: Validate site
 on:
   push:
     branches: [main]
@@ -9,10 +9,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check HTML and JavaScript files exist
-        run: test -s index.html
-      - name: Check document structure markers
+      - name: Verify page structure
         run: |
+          test -s index.html
           grep -q '<html lang="he" dir="rtl">' index.html
           grep -q 'id="cards"' index.html
-          grep -q 'function render()' index.html
+          grep -q 'id="player"' index.html
+      - name: Syntax-check embedded JavaScript
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          html = Path("index.html").read_text(encoding="utf-8")
+          scripts = re.findall(r"<script>(.*?)</script>", html, re.S)
+          assert scripts, "No inline JavaScript found"
+          Path("/tmp/site.js").write_text("\n".join(scripts), encoding="utf-8")
+          PY
+          node --check /tmp/site.js
