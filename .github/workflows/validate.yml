@@ -9,12 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify page structure
+      - name: Verify page structure and controls
         run: |
           test -s index.html
           grep -q '<html lang="he" dir="rtl">' index.html
-          grep -q 'id="cards"' index.html
-          grep -q 'id="player"' index.html
+          grep -q 'id="grid"' index.html
+          grep -q 'id="video"' index.html
+          grep -q 'id="search"' index.html
+          grep -q 'data-view="מועדפים"' index.html
+          grep -q '13tv.co.il/embed/item/' index.html
       - name: Syntax-check embedded JavaScript
         run: |
           python3 - <<'PY'
