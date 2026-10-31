@@ -89,29 +89,67 @@ const clean=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt
 function logoTag(c){const url=new URL(c.url).origin+'/favicon.ico';return `<span>${clean(c.brand).replace(/\n/g,'<br>')}</span><img src="${clean(url)}" alt="" loading="lazy" onerror="this.remove()">`}
 function notice(s){const t=$('#toast');t.textContent=s;t.classList.add('show');clearTimeout(notice.timer);notice.timer=setTimeout(()=>t.classList.remove('show'),2200)}
 function render(){const q=$('#search').value.trim().toLocaleLowerCase('he');const list=channels.filter(c=>(view==='הכול'||(view==='שמורים'?favs.has(c.id):c.kind===view))&&(filter==='הכול'||c.kind===filter)&&(!q||(c.name+' '+c.brand+' '+c.kind+' '+c.desc).toLocaleLowerCase('he').includes(q)));$('#count').textContent=`${list.length} תחנות`;$('#grid').innerHTML=list.length?list.map((c,i)=>`<article class="channel" style="--i:${i%15};--logo-bg:${c.logoBg};--logo-fg:${c.logoFg};--logo-size:${c.logoSize}"><div class="channel-logo" aria-label="סמל ${clean(c.name)}">${logoTag(c)}</div><div class="channel-main"><strong>${clean(c.name)}</strong><small>${clean(c.desc)}</small><div class="channel-tag"><i class="tag-dot"></i>${c.streamUrl?'כתובת הוזנה · ניגון לא אומת':'מקור רשמי'}</div></div><div class="channel-actions"><button class="mini ${favs.has(c.id)?'saved':''}" type="button" data-fav="${c.id}" aria-label="${favs.has(c.id)?'הסר':'שמור'} ${clean(c.name)} ${favs.has(c.id)?'מהשמורים':'בשמורים'}" title="${favs.has(c.id)?'הסר מהשמורים':'שמור תחנה'}">${favs.has(c.id)?'★':'☆'}</button><button class="mini" type="button" data-detail="${c.id}" aria-label="בחר ${clean(c.name)}" title="בחר תחנה">↙</button></div><button class="choose" type="button" data-detail="${c.id}">פרטי התחנה ←</button><a class="channel-link" href="${clean(c.url)}" target="_blank" rel="noopener noreferrer" aria-label="פתח את האתר הרשמי של ${clean(c.name)}" title="פתיחת מקור רשמי">אתר ↗</a></article>`).join(''):'<div class="no-results">לא מצאנו תחנה כזאת. נסו חיפוש אחר או בחרו קטגוריה אחרת.</div>';$('#grid').querySelectorAll('[data-detail]').forEach(b=>b.addEventListener('click',()=>select(b.dataset.detail)));$('#grid').querySelectorAll('[data-fav]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();toggle(b.dataset.fav)}));$('#grid').querySelectorAll('.channel').forEach(card=>card.addEventListener('click',e=>{if(e.target.closest('button,a'))return;const button=card.querySelector('[data-detail]');if(button)select(button.dataset.detail)}))}
-let activeHls=null;
-function releaseStream(){const video=$('#streamVideo'),audio=$('#streamAudio');if(activeHls){activeHls.destroy();activeHls=null}for(const media of [video,audio])if(media){media.pause();media.removeAttribute('src');media.load()}}
+const streamAlternates={
+ kan11:['https://kancdn.medonecdn.net/livehls/oil/kancdn-live/live/kan11/live.livx/playlist.m3u8','https://r.il.cdn-redge.media/livehls/oil/kancdn-live/live/kan11/live.livx/playlist.m3u8','https://n-121-7.il.cdn-redge.media/livehls/oil/kancdn-live/live/kan11/live.livx/playlist.m3u8','https://kan11.media.kan.org.il/hls/live/2024514/2024514/master.m3u8'],
+ reshet13:['https://d18b0e6mopany4.cloudfront.net/out/v1/2f2bc414a3db4698a8e94b89eaf2da2a/index.m3u8'],
+ now14:['https://r.il.cdn-redge.media/livehls/oil/ch14/live/ch14/live.livx/playlist.m3u8','https://n-121-6.il.cdn-redge.media/livehls/oil/ch14/live/ch14/live.livx/playlist.m3u8'],
+ i24he:['https://i24newshebrew-cdn.encoders.immergo.tv/2/streamPlaylist.m3u8'],
+ kan_makan_33:['https://kancdn.medonecdn.net/livehls/oil/kancdn-live/live/makan/live.livx/playlist.m3u8'],
+ knesset:['https://contact.gostreaming.tv/Knesset/myStream/playlist.m3u8']
+};
+let activeHls=null,attemptTimer=null,attemptToken=0;
+function releaseStream(){attemptToken++;if(attemptTimer){clearTimeout(attemptTimer);attemptTimer=null}const video=$('#streamVideo'),audio=$('#streamAudio');if(activeHls){activeHls.destroy();activeHls=null}for(const media of [video,audio])if(media){media.pause();media.removeAttribute('src');media.load()}}
+function streamCandidates(c){return [...new Set([...(c.streamUrls||[]),c.streamUrl,...(streamAlternates[c.id]||[])].filter(Boolean))]}
+function startStreamCandidates(c,media,isRadio){
+ const urls=streamCandidates(c);let index=0;const token=++attemptToken;
+ const status=(s)=>{if(token===attemptToken)$('#playerStatus').textContent=s};
+ const fail=()=>{
+  if(token!==attemptToken)return;
+  if(attemptTimer){clearTimeout(attemptTimer);attemptTimer=null}
+  if(activeHls){activeHls.destroy();activeHls=null}
+  media.pause();media.removeAttribute('src');try{media.load()}catch{}
+  index++;
+  if(index>=urls.length){status('כל '+urls.length+' המקורות נכשלו');$('#currentHint').textContent='לא נמצא מקור שניתן לנגן בדפדפן';notice('כל המקורות שנוסו נכשלו. ייתכן שחסומים או לא פעילים');return}
+  tryCandidate();
+ };
+ const tryCandidate=()=>{
+  if(token!==attemptToken)return;
+  const src=urls[index];status('בודק מקור '+(index+1)+' מתוך '+urls.length+'…');
+  $('#currentHint').textContent='מנסה מקור חלופי אוטומטית';
+  let settled=false;
+  const success=()=>{if(token!==attemptToken||settled)return;settled=true;if(attemptTimer){clearTimeout(attemptTimer);attemptTimer=null}status('משדר עכשיו · מקור '+(index+1)+'/'+urls.length);$('#currentHint').textContent='השידור פועל בתוך האתר'};
+  const bad=()=>{if(token!==attemptToken||settled)return;settled=true;fail()};
+  media.addEventListener('playing',success,{once:true});
+  media.addEventListener('error',bad,{once:true});
+  attemptTimer=setTimeout(()=>{if(token===attemptToken&&!settled)bad()},16000);
+  if(!isRadio&&/\.m3u8(?:$|\?)/i.test(src)&&window.Hls&&Hls.isSupported()){
+   const hls=new Hls({enableWorker:true,manifestLoadingMaxRetry:1,levelLoadingMaxRetry:1,fragLoadingMaxRetry:1,manifestLoadingTimeOut:8000});
+   activeHls=hls;
+   hls.on(Hls.Events.MANIFEST_PARSED,()=>{if(token!==attemptToken||settled)return;media.play().catch(()=>{status('המקור נטען — לחצו ▶ להפעלה')})});
+   hls.on(Hls.Events.ERROR,(_,data)=>{if(token!==attemptToken||settled||!data.fatal)return;bad()});
+   hls.loadSource(src);hls.attachMedia(media);
+  }else{
+   media.src=src;media.load();media.play().catch(()=>{status('המקור נבחר — לחצו ▶ להפעלה')});
+  }
+ };
+ if(!urls.length){status('אין כתובות שידור');return}
+ tryCandidate();
+}
 function select(id){
  const c=channels.find(x=>x.id===id);if(!c)return;releaseStream();current=c;
  $('#currentLogo').innerHTML=logoTag(c);$('#currentLogo').style.background=c.logoBg;$('#currentLogo').style.color=c.logoFg;$('#currentLogo').style.fontSize=c.logoSize;
  $('#currentName').textContent=c.name;$('#playerHeading').textContent=c.name;$('#stop').disabled=false;$('#fullscreen').disabled=true;
- if(!c.streamUrl){
-  $('#frame').innerHTML='<div class="official-bridge"><div class="official-orb">LIVE</div><h2>'+clean(c.name)+'</h2><p>אין כתובת שידור ישירה ברשומה זו.</p><small>סטטוס: אין כתובת שידור</small></div>';
-  $('#playerStatus').textContent='אין כתובת שידור';$('#currentHint').textContent='ממתין לכתובת שידור';
+ if(!c.streamUrl&&!(c.streamUrls&&c.streamUrls.length)){
+  $('#frame').innerHTML='<div class="official-bridge"><div class="official-orb">LIVE</div><h2>'+clean(c.name)+'</h2><p>אין כתובת שידור ישירה ברשומה זו.</p><small>זהו אתר תוכן או ספריית VOD, לא בהכרח ערוץ חי.</small></div>';
+  $('#playerStatus').textContent='אין כתובת שידור';$('#currentHint').textContent='אין מקור ישיר זמין לתחנה זו';
  }else{
   const isRadio=c.kind==='רדיו';
   $('#frame').innerHTML=isRadio
    ? '<audio id="streamAudio" controls preload="none" style="width:88%"></audio>'
    : '<video id="streamVideo" controls playsinline preload="none" style="position:absolute;inset:0;width:100%;height:100%;background:#000"></video>';
-  const media=isRadio?$('#streamAudio'):$('#streamVideo'),src=c.streamUrl;
-  media.addEventListener('playing',()=>{$('#playerStatus').textContent='משדר עכשיו';$('#fullscreen').disabled=false});
-  media.addEventListener('error',()=>{$('#playerStatus').textContent='שגיאה בטעינת השידור';notice('מקור השידור לא זמין או חסום להפעלה')});
-  if(!isRadio&&src.toLowerCase().includes('.m3u8')&&window.Hls&&Hls.isSupported()){
-   activeHls=new Hls({enableWorker:true});activeHls.loadSource(src);activeHls.attachMedia(media);
-   activeHls.on(Hls.Events.ERROR,(_,data)=>{if(data.fatal){$('#playerStatus').textContent='שגיאה בשידור';notice('השידור נכשל — ייתכן שהמקור לא זמין או לא נתמך')}});
-  }else media.src=src;
-  $('#playerStatus').textContent='טוען שידור…';$('#currentHint').textContent=isRadio?'ניגון רדיו בתוך האתר':'ניגון טלוויזיה בתוך האתר';
-  media.play().catch(()=>notice('לחצו על ▶ בנגן כדי להתחיל'));
+  const media=isRadio?$('#streamAudio'):$('#streamVideo');
+  media.addEventListener('playing',()=>{$('#fullscreen').disabled=false});
+  startStreamCandidates(c,media,isRadio);
  }
  $('#playerCard').scrollIntoView({behavior:'smooth',block:'center'});
 }
