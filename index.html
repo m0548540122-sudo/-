@@ -126,11 +126,11 @@ function startStreamCandidates(c,media,isRadio){
   if(!isRadio&&/\.m3u8(?:$|\?)/i.test(src)&&window.Hls&&Hls.isSupported()){
    const hls=new Hls({enableWorker:true,manifestLoadingMaxRetry:1,levelLoadingMaxRetry:1,fragLoadingMaxRetry:1,manifestLoadingTimeOut:8000});
    activeHls=hls;
-   hls.on(Hls.Events.MANIFEST_PARSED,()=>{if(token!==attemptToken||settled)return;media.play().catch(()=>{status('המקור נטען — לחצו ▶ להפעלה')})});
+   hls.on(Hls.Events.MANIFEST_PARSED,()=>{if(token!==attemptToken||settled)return;media.play().catch(()=>{if(token===attemptToken&&attemptTimer){clearTimeout(attemptTimer);attemptTimer=null}status('המקור נטען — לחצו ▶ להפעלה')})});
    hls.on(Hls.Events.ERROR,(_,data)=>{if(token!==attemptToken||settled||!data.fatal)return;bad()});
    hls.loadSource(src);hls.attachMedia(media);
   }else{
-   media.src=src;media.load();media.play().catch(()=>{status('המקור נבחר — לחצו ▶ להפעלה')});
+   media.src=src;media.load();media.play().catch(()=>{if(token===attemptToken&&attemptTimer){clearTimeout(attemptTimer);attemptTimer=null}status('המקור נבחר — לחצו ▶ להפעלה')});
   }
  };
  if(!urls.length){status('אין כתובות שידור');return}
