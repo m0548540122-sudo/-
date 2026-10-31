@@ -53,18 +53,17 @@
 <script>
 'use strict';
 const channels=[
- {id:'kan11',name:'כאן 11',brand:'כאן',kind:'טלוויזיה',desc:'תאגיד השידור הישראלי',url:'https://www.kan.org.il/live/',logoBg:'#f3f1eb',logoFg:'#161817',logoSize:'13px'},
+ {id:'kan11',name:'כאן 11',brand:'כאן',kind:'טלוויזיה',desc:'תאגיד השידור הישראלי',url:'https://www.kan.org.il/live/',streamUrl:'https://kan11w.media.kan.org.il/hls/live/2105694/2105694/master.m3u8',format:'hls',sourceType:'official',logoBg:'#f3f1eb',logoFg:'#161817',logoSize:'13px'},
  {id:'keshet12',name:'קשת 12 — +12 LIVE',brand:'+12',kind:'טלוויזיה',desc:'השידור החי הרשמי של +12',url:'https://www.mako.co.il/mako-vod-live-tv/VOD-6540b8dcb64fd31006.htm',logoBg:'#fff',logoFg:'#ed4f49',logoSize:'22px',officialOnly:true},
  {id:'reshet13',name:'רשת 13',brand:'13',kind:'טלוויזיה',desc:'שידורים ותוכניות באתר רשת 13',url:'https://www.13tv.co.il/',logoBg:'#f24d43',logoFg:'#fff',logoSize:'25px',officialOnly:true},
  {id:'now14',name:'עכשיו 14',brand:'14',kind:'טלוויזיה',desc:'חדשות, אקטואליה ותוכניות',url:'https://tv.c14.co.il/',logoBg:'#ec4c42',logoFg:'#fff',logoSize:'24px'},
- {id:'knesset',name:'ערוץ הכנסת 99',brand:'כנסת',kind:'טלוויזיה',desc:'שידורי המליאה והוועדות',url:'https://www.knesset.tv/live/',logoBg:'#263c63',logoFg:'#fff',logoSize:'12px'},
+ {id:'knesset',name:'ערוץ הכנסת 99',brand:'כנסת',kind:'טלוויזיה',desc:'שידורי המליאה והוועדות',url:'https://www.knesset.tv/live/',streamUrl:'https://contactgvil-vh.akamaihd.net/i/knessetlive_1@194911/master.m3u8',format:'hls',sourceType:'community',logoBg:'#263c63',logoFg:'#fff',logoSize:'12px'},
  {id:'kanedu',name:'כאן חינוכית',brand:'כאן\nחינוכית',kind:'טלוויזיה',desc:'תוכן לילדים ולמשפחה',url:'https://www.kankids.org.il/',logoBg:'#d9f5e8',logoFg:'#194c37',logoSize:'10px'},
  {id:'i24he',name:'i24NEWS בעברית',brand:'i24\nNEWS',kind:'חדשות',desc:'חדשות ישראליות ובינלאומיות',url:'https://www.i24news.tv/he',logoBg:'#e9edf2',logoFg:'#183558',logoSize:'12px'},
  {id:'kannews',name:'כאן חדשות',brand:'כאן\nחדשות',kind:'חדשות',desc:'חדשות ועדכונים מתאגיד השידור',url:'https://www.kan.org.il/content/kan/news/',logoBg:'#f1eee8',logoFg:'#20201d',logoSize:'11px'},
  {id:'n12',name:'חדשות 12',brand:'N12',kind:'חדשות',desc:'החדשות של קשת',url:'https://www.n12.co.il/',logoBg:'#f2e9e9',logoFg:'#bd3333',logoSize:'17px'},
  {id:'ynet',name:'ynet',brand:'ynet',kind:'חדשות',desc:'חדשות, כלכלה ותרבות',url:'https://www.ynet.co.il/',logoBg:'#fff',logoFg:'#d72528',logoSize:'16px'},
- {id:'glz',name:'גלי צה״ל',brand:'גל״צ',kind:'רדיו',desc:'חדשות, שיחות ומוזיקה',url:'https://glz.co.il/',logoBg:'#243c64',logoFg:'#fff',logoSize:'14px'},
- {id:'galgalatz',name:'גלגלצ',brand:'גלגלצ',kind:'רדיו',desc:'מוזיקה, מצעדים ועדכוני דרך',url:'https://glz.co.il/גלגלצ',logoBg:'#f3e66c',logoFg:'#25251b',logoSize:'12px'},
+ {id:'glz',name:'גלי צה״ל',brand:'גל״צ',kind:'רדיו',desc:'חדשות, שיחות ומוזיקה',url:'https://glz.co.il/',streamUrl:'https://glzwizzlv.bynetcdn.com/glz_mp3',format:'mp3',sourceType:'official',logoBg:'#243c64',logoFg:'#fff',logoSize:'14px'},
  {id:'kanradio',name:'כאן — תחנות הרדיו',brand:'כאן\nרדיו',kind:'רדיו',desc:'כאן ב׳, כאן גימל, 88, תרבות ועוד',url:'https://www.kan.org.il/radio/',logoBg:'#f3f1eb',logoFg:'#161817',logoSize:'11px'},
  {id:'103fm',name:'103FM',brand:'103FM',kind:'רדיו',desc:'שידור, תוכניות ופודקאסטים',url:'https://103fm.maariv.co.il/',logoBg:'#263a64',logoFg:'#fff',logoSize:'13px'},
  {id:'eco99',name:'Eco99FM',brand:'eco99',kind:'רדיו',desc:'מוזיקה ושידור חי',url:'https://eco99fm.maariv.co.il/',logoBg:'#f4f4ec',logoFg:'#4f9c78',logoSize:'12px'},
@@ -74,9 +73,7 @@ const channels=[
  {id:'plus12',name:'+12',brand:'+12',kind:'תוכן',desc:'ספריית התוכן של קשת',url:'https://www.mako.co.il/mako-vod',logoBg:'#fff',logoFg:'#eb514c',logoSize:'22px'},
  {id:'plus13',name:'13+',brand:'13+',kind:'תוכן',desc:'אפליקציה ותוכן של רשת 13',url:'https://13tv.co.il/',logoBg:'#ef4a40',logoFg:'#fff',logoSize:'17px'},
 
- {id:'kan_11',name:'כאן 11',brand:'כאן 11',kind:'טלוויזיה',desc:'שידור חי — כתובת שסופקה, טרם אומתה',url:'https://www.kan.org.il/',streamUrl:'https://kan11w.media.kan.org.il/hls/live/2105694/2105694/master.m3u8',format:'hls',sourceType:'official',logoBg:'#f3f1eb',logoFg:'#161817',logoSize:'12px'},
  {id:'kan_makan_33',name:'מכאן 33',brand:'مכאן 33',kind:'טלוויזיה',desc:'שידור חי — כתובת שסופקה, טרם אומתה',url:'https://www.kan.org.il/',streamUrl:'https://makan.media.kan.org.il/hls/live/2105692/2105692/master.m3u8',format:'hls',sourceType:'official',logoBg:'#f3f1eb',logoFg:'#161817',logoSize:'11px'},
- {id:'knesset_99',name:'ערוץ הכנסת 99',brand:'כנסת',kind:'טלוויזיה',desc:'שידור חי — כתובת שסופקה, טרם אומתה',url:'https://main.knesset.gov.il/',streamUrl:'https://contactgvil-vh.akamaihd.net/i/knessetlive_1@194911/master.m3u8',format:'hls',sourceType:'community',logoBg:'#263c63',logoFg:'#fff',logoSize:'12px'},
  {id:'nasa_tv_public',name:'NASA TV Public',brand:'NASA',kind:'טלוויזיה',desc:'שידור ציבורי — Playback טרם אומת',url:'https://www.nasa.gov/',streamUrl:'https://nasa-i.akamaihd.net/hls/live/253565/NTV-Public1/master.m3u8',format:'hls',sourceType:'official',logoBg:'#172b59',logoFg:'#fff',logoSize:'13px'},
  {id:'france24_en',name:'France 24 English',brand:'FRANCE 24',kind:'טלוויזיה',desc:'שידור חי — Playback טרם אומת',url:'https://www.france24.com/',streamUrl:'https://live.france24.com/hls/live/2037218/F24_EN_HI_HLS/master_900.m3u8',format:'hls',sourceType:'official',logoBg:'#e9edf2',logoFg:'#183558',logoSize:'9px'},
  {id:'dw_english',name:'DW English',brand:'DW',kind:'טלוויזיה',desc:'שידור חי — Playback טרם אומת',url:'https://www.dw.com/',streamUrl:'https://dwamdstream104.akamaized.net/hls/live/2015530/dwstream104/index.m3u8',format:'hls',sourceType:'official',logoBg:'#172c52',logoFg:'#fff',logoSize:'19px'},
@@ -85,7 +82,6 @@ const channels=[
  {id:'kan_88',name:'כאן 88',brand:'כאן 88',kind:'רדיו',desc:'רדיו חי — כתובת שסופקה, טרם אומתה',url:'https://www.kan.org.il/',streamUrl:'https://kanliveicy.media.kan.org.il/icy/kan88_mp3',format:'mp3',sourceType:'official',logoBg:'#f3f1eb',logoFg:'#161817',logoSize:'12px'},
  {id:'kan_bet',name:'כאן ב׳',brand:'כאן ב׳',kind:'רדיו',desc:'רדיו חי — כתובת שסופקה, טרם אומתה',url:'https://www.kan.org.il/',streamUrl:'https://kanliveicy.media.kan.org.il/icy/kanbet_mp3',format:'mp3',sourceType:'official',logoBg:'#f3f1eb',logoFg:'#161817',logoSize:'12px'},
  {id:'galgalatz',name:'גלגלצ',brand:'גלגלצ',kind:'רדיו',desc:'רדיו חי — Playback טרם אומת',url:'https://glz.co.il/',streamUrl:'https://glzwizzlv.bynetcdn.com/glglz_mp3',format:'mp3',sourceType:'official',logoBg:'#f3e66c',logoFg:'#25251b',logoSize:'12px'},
- {id:'glz_galatz',name:'גלי צה״ל',brand:'גל״צ',kind:'רדיו',desc:'רדיו חי — כתובת דורשת אימות',url:'https://glz.co.il/',streamUrl:'https://glzwizzlv.bynetcdn.com/glz_mp3',format:'mp3',sourceType:'official',logoBg:'#243c64',logoFg:'#fff',logoSize:'14px'},
  {id:'radio_100fm',name:'רדיוס 100FM',brand:'100FM',kind:'רדיו',desc:'רדיו חי — מקור קהילתי, טרם אומת',url:'https://www.100fm.co.il/',streamUrl:'https://100fm.streamgates.net/100fm/100fm_aac',format:'aac',sourceType:'community',logoBg:'#f4f4ec',logoFg:'#4f9c78',logoSize:'12px'}
 ]
 const $=s=>document.querySelector(s);let view='הכול',filter='הכול',current=null,favs=new Set();try{favs=new Set(JSON.parse(localStorage.getItem('teder-favs')||'[]'))}catch{}
@@ -125,7 +121,7 @@ function setView(v){view=v;filter='הכול';document.querySelectorAll('#nav [da
 $('#nav').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(b)setView(b.dataset.view)});$('#filters').addEventListener('click',e=>{const b=e.target.closest('[data-filter]');if(!b)return;filter=b.dataset.filter;document.querySelectorAll('#filters [data-filter]').forEach(x=>x.classList.toggle('active',x===b));render()});document.querySelectorAll('[data-jump]').forEach(b=>b.addEventListener('click',()=>{setView(b.dataset.jump);$('#library').scrollIntoView({behavior:'smooth'})}));$('#search').addEventListener('input',render);$('#search').addEventListener('keydown',e=>{if(e.key==='Escape'){e.currentTarget.value='';render()}});document.addEventListener('keydown',e=>{if(e.key==='/'&&document.activeElement!==$('#search')){e.preventDefault();$('#search').focus()}});$('#stop').addEventListener('click',stop);function closeFullscreen(){const card=$('#playerCard');card.classList.remove('expanded');document.body.classList.remove('fullscreen-open');$('#fullscreen').textContent='⛶';$('#fullscreen').setAttribute('aria-label','הגדלה למסך מלא')}
 $('#fullscreen').addEventListener('click',()=>{const open=!$('#playerCard').classList.contains('expanded');if(open){$('#playerCard').classList.add('expanded');document.body.classList.add('fullscreen-open');$('#fullscreen').textContent='×';$('#fullscreen').setAttribute('aria-label','יציאה ממסך מלא')}else closeFullscreen()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#playerCard').classList.contains('expanded'))closeFullscreen()});
-function clock(){const d=new Date();$('#clock').textContent=d.toLocaleDateString('he-IL',{weekday:'short',day:'numeric',month:'short'})+' · '+d.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'})}clock();setInterval(clock,30000);render();select('keshet12');
+function clock(){const d=new Date();$('#clock').textContent=d.toLocaleDateString('he-IL',{weekday:'short',day:'numeric',month:'short'})+' · '+d.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'})}clock();setInterval(clock,30000);render();
 </script>
 </body>
 </html>
